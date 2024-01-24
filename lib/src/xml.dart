@@ -83,15 +83,25 @@ class WebdavXml {
 
             // create time
             final cTimeElements = findElements(prop, 'creationdate');
-            DateTime? cTime = cTimeElements.isNotEmpty
-                ? DateTime.parse(cTimeElements.single.text).toLocal()
-                : null;
+            DateTime? cTime;
+            try {
+              cTime = cTimeElements.isNotEmpty
+                  ? DateTime.parse(cTimeElements.single.text).toLocal()
+                  : null;
+            } catch (e) {
+              cTime = null;
+            }
 
             // modified time
             final mTimeElements = findElements(prop, 'getlastmodified');
-            DateTime? mTime = mTimeElements.isNotEmpty
-                ? str2LocalTime(mTimeElements.single.text)
-                : null;
+            DateTime? mTime;
+            try {
+              mTime = mTimeElements.isNotEmpty
+                  ? str2LocalTime(mTimeElements.single.text)
+                  : null;
+            } catch (e) {
+              mTime = null;
+            }
 
             //
             var str = Uri.decodeFull(href);
