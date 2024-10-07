@@ -95,6 +95,7 @@ class Client {
   /// Recursively create folders
   Future<void> mkdirAll(String path, [CancelToken? cancelToken]) async {
     path = fixSlashes(path);
+
     var resp = await this.c.wdMkcol(this, path, cancelToken: cancelToken);
     var status = resp.statusCode;
     if (status == 201 || status == 405) {
@@ -107,9 +108,10 @@ class Client {
           continue;
         }
         sub += e + '/';
+
         resp = await this.c.wdMkcol(this, sub, cancelToken: cancelToken);
         status = resp.statusCode;
-        if (status != 201 && status != 405) {
+        if (status != 201 && status != 405 && status != 409) {
           throw newResponseError(resp);
         }
       }
