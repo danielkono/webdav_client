@@ -35,7 +35,8 @@ class WebdavXml {
     // response
     list.forEach((element) {
       // name
-      String href = findElements(element, 'href').single.text;
+      final hrefElements = findElements(element, 'href');
+      String href = hrefElements.isNotEmpty ? hrefElements.single.text : '';
 
       // propstats
       var props = findElements(element, 'propstat');
@@ -45,10 +46,12 @@ class WebdavXml {
         if (findElements(propstat, 'status').single.text.contains('200')) {
           // prop
           for (var prop in findElements(propstat, 'prop')) {
+            final resourceTypeElements = findElements(prop, 'resourcetype');
             // isDir
-            bool isDir = findElements(
-                    findElements(prop, 'resourcetype').single, 'collection')
-                .isNotEmpty;
+            bool isDir = resourceTypeElements.isNotEmpty
+                ? findElements(resourceTypeElements.single, 'collection')
+                    .isNotEmpty
+                : false;
 
             // skip self
             if (skipSelf) {
@@ -80,15 +83,25 @@ class WebdavXml {
 
             // create time
             final cTimeElements = findElements(prop, 'creationdate');
-            DateTime? cTime = cTimeElements.isNotEmpty
-                ? DateTime.parse(cTimeElements.single.text).toLocal()
-                : null;
+            DateTime? cTime;
+            try {
+              cTime = cTimeElements.isNotEmpty
+                  ? DateTime.parse(cTimeElements.single.text).toLocal()
+                  : null;
+            } catch (e) {
+              cTime = null;
+            }
 
             // modified time
             final mTimeElements = findElements(prop, 'getlastmodified');
-            DateTime? mTime = mTimeElements.isNotEmpty
-                ? str2LocalTime(mTimeElements.single.text)
-                : null;
+            DateTime? mTime;
+            try {
+              mTime = mTimeElements.isNotEmpty
+                  ? str2LocalTime(mTimeElements.single.text)
+                  : null;
+            } catch (e) {
+              mTime = null;
+            }
 
             //
             var str = Uri.decodeFull(href);
